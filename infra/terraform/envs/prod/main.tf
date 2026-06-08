@@ -66,7 +66,7 @@ variable "ocpus" {
 variable "memory_in_gbs" {
   description = "Mémoire en Go"
   type        = number
-  default     = 2
+  default     = 6
 }
 
 variable "ubuntu_version" {
@@ -226,7 +226,7 @@ resource "oci_core_instance" "k3s" {
   source_details {
     source_type             = "image"
     source_id               = data.oci_core_images.ubuntu.images[0].id
-    boot_volume_size_in_gbs = 10
+    boot_volume_size_in_gbs = 50
   }
 
   metadata = {
