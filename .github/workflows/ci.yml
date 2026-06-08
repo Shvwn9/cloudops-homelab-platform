@@ -38,4 +38,4 @@ jobs:
         run: ruff check app
 
       - name: Run tests
-        run: pytest -q app/tests
+        run: python -m pytest -q app/tests
