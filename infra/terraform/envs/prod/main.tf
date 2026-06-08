@@ -60,13 +60,13 @@ variable "shape" {
 variable "ocpus" {
   description = "Nombre d'OCPU"
   type        = number
-  default     = 2
+  default     = 1
 }
 
 variable "memory_in_gbs" {
   description = "Mémoire en Go"
   type        = number
-  default     = 12
+  default     = 2
 }
 
 variable "ubuntu_version" {
