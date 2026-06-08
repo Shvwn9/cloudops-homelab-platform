@@ -30,8 +30,8 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            ghcr.io/${{ github.repository_owner }}/masterops-api:${{ github.sha }}
-            ghcr.io/${{ github.repository_owner }}/masterops-api:latest
+            ghcr.io/shvwn9/masterops-api:${{ github.sha }}
+            ghcr.io/shvwn9/masterops-api:latest
 
       - uses: docker/build-push-action@v6
         with:
@@ -40,5 +40,5 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            ghcr.io/${{ github.repository_owner }}/masterops-worker:${{ github.sha }}
-            ghcr.io/${{ github.repository_owner }}/masterops-worker:latest
+            ghcr.io/shvwn9/masterops-worker:${{ github.sha }}
+            ghcr.io/shvwn9/masterops-worker:latest
