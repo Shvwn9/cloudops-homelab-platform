@@ -1,0 +1,9 @@
+---
+- name: Bootstrap MasterOps Cloud Platform
+  hosts: k3s_servers
+  become: true
+
+  roles:
+    - common
+    - k3s
+    - platform

@@ -1,0 +1,44 @@
+---
+- name: Check if Helm is already installed
+  ansible.builtin.command: helm version --short
+  register: helm_check
+  failed_when: false
+  changed_when: false
+
+- name: Install Helm
+  ansible.builtin.shell: |
+    curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  when: helm_check.rc != 0
+
+- name: Verify Helm installation
+  ansible.builtin.command: helm version --short
+  register: helm_version
+  changed_when: false
+
+- name: Print Helm version
+  ansible.builtin.debug:
+    var: helm_version.stdout
+
+- name: Create MasterOps namespace
+  ansible.builtin.command: k3s kubectl create namespace masterops
+  register: namespace_create
+  failed_when:
+    - namespace_create.rc != 0
+    - "'AlreadyExists' not in namespace_create.stderr"
+  changed_when: "'created' in namespace_create.stdout"
+
+- name: Create ingress-system namespace
+  ansible.builtin.command: k3s kubectl create namespace ingress-system
+  register: ingress_namespace_create
+  failed_when:
+    - ingress_namespace_create.rc != 0
+    - "'AlreadyExists' not in ingress_namespace_create.stderr"
+  changed_when: "'created' in ingress_namespace_create.stdout"
+
+- name: Create observability namespace
+  ansible.builtin.command: k3s kubectl create namespace observability
+  register: observability_namespace_create
+  failed_when:
+    - observability_namespace_create.rc != 0
+    - "'AlreadyExists' not in observability_namespace_create.stderr"
+  changed_when: "'created' in observability_namespace_create.stdout"
