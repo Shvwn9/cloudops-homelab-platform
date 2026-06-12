@@ -54,7 +54,7 @@ variable "availability_domain_index" {
 variable "shape" {
   description = "Shape OCI de la VM"
   type        = string
-  default     = "VM.Standard.A1.Flex"
+  default     = "VM.Standard.E3.Flex"
 }
 
 variable "ocpus" {
