@@ -26,3 +26,5 @@ __pycache__/
 # Système et éditeurs
 .DS_Store
 .vscode/
+
+infra/ansible/inventory/inventory.ini
