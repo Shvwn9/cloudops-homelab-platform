@@ -42,3 +42,60 @@
     - observability_namespace_create.rc != 0
     - "'AlreadyExists' not in observability_namespace_create.stderr"
   changed_when: "'created' in observability_namespace_create.stdout"
+
+- name: Install Gateway API CRDs
+  ansible.builtin.command:
+    cmd: k3s kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.5.1/standard-install.yaml
+  changed_when: false
+
+- name: Add Traefik Helm repository
+  ansible.builtin.command:
+    cmd: helm repo add traefik https://traefik.github.io/charts
+  register: traefik_repo
+  failed_when:
+    - traefik_repo.rc != 0
+    - "'already exists' not in traefik_repo.stderr"
+  changed_when: "'has been added' in traefik_repo.stdout"
+
+- name: Update Helm repositories
+  ansible.builtin.command:
+    cmd: helm repo update
+  changed_when: false
+
+- name: Install Traefik with Gateway API provider
+  ansible.builtin.command:
+    cmd: >
+      helm upgrade --install traefik traefik/traefik
+      --namespace ingress-system
+      --create-namespace
+      --set providers.kubernetesGateway.enabled=true
+      --set gateway.enabled=false
+      --set service.type=LoadBalancer
+      --set ports.web.port=8000
+      --set ports.web.exposedPort=80
+      --set ports.websecure.port=8443
+      --set ports.websecure.exposedPort=443
+  environment:
+    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+  changed_when: true
+
+- name: Wait for Traefik rollout
+  ansible.builtin.command:
+    cmd: k3s kubectl -n ingress-system rollout status deployment/traefik --timeout=180s
+  changed_when: false
+
+- name: Show Traefik service
+  ansible.builtin.command:
+    cmd: k3s kubectl get svc -n ingress-system
+  register: traefik_service
+  changed_when: false
+
+- name: Print Traefik service
+  ansible.builtin.debug:
+    var: traefik_service.stdout_lines
+
+
+- name: Apply public Gateway
+  ansible.builtin.command:
+    cmd: k3s kubectl apply -f ~/cloudops-homelab-platform/k8s/networking/gateway.yaml
+  changed_when: true
