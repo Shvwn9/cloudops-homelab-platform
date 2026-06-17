@@ -97,5 +97,5 @@
 
 - name: Apply public Gateway
   ansible.builtin.command:
-    cmd: k3s kubectl apply -f ~/cloudops-homelab-platform/k8s/networking/gateway.yaml
+    cmd: k3s kubectl apply -f /home/roccashawn/cloudops-homelab-platform/k8s/networking/gateway.yaml
   changed_when: true
