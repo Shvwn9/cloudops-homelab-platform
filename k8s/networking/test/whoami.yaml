@@ -48,7 +48,7 @@ spec:
       namespace: ingress-system
       sectionName: web
   hostnames:
-    - 
+    - "masterops-88-96-38-121.sslip.io"
   rules:
     - matches:
         - path:
