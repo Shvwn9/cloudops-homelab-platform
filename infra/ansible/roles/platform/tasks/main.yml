@@ -95,7 +95,13 @@
     var: traefik_service.stdout_lines
 
 
+- name: Copy public Gateway manifest to server
+  ansible.builtin.copy:
+    src: ../../k8s/networking/gateway.yaml
+    dest: /tmp/public-gateway.yaml
+    mode: "0644"
+
 - name: Apply public Gateway
   ansible.builtin.command:
-    cmd: k3s kubectl apply -f /home/roccashawn/cloudops-homelab-platform/k8s/networking/gateway.yaml
+    cmd: k3s kubectl apply -f /tmp/public-gateway.yaml
   changed_when: true
