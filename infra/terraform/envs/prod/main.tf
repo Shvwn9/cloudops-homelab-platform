@@ -240,7 +240,7 @@ resource "oci_core_instance" "k3s" {
         - curl
 
       runcmd:
-        - [ bash, -lc, 'curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --write-kubeconfig-mode=0644" sh -' ]
+        - [ bash, -lc, 'curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --disable traefik --write-kubeconfig-mode=0644" sh -' ]
     CLOUD_INIT
     )
   }

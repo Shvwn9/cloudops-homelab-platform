@@ -10,5 +10,8 @@ spec:
       name: letsencrypt-prod-account-key
     solvers:
       - http01:
-          ingress:
-            class: traefik
+          gatewayHTTPRoute:
+            parentRefs:
+              - name: public-gateway
+                namespace: ingress-system
+                kind: Gateway
