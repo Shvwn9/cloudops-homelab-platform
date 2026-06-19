@@ -47,6 +47,9 @@ spec:
     - name: public-gateway
       namespace: ingress-system
       sectionName: web
+    - name: public-gateway
+      namespace: ingress-system
+      sectionName: websecure
   hostnames:
     - "masterops-88-96-38-121.sslip.io"
   rules:
