@@ -9,6 +9,18 @@ spec:
     - name: web
       port: 8000
       protocol: HTTP
+      hostname: ${MASTEROPS_HOST}
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: websecure
+      port: 443
+      protocol: HTTPS
+      hostname: ${MASTEROPS_HOST}
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: masterops-tls
       allowedRoutes:
         namespaces:
           from: All
