@@ -1,0 +1,65 @@
+name: deploy-prod
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install envsubst
+        run: sudo apt-get update && sudo apt-get install -y gettext-base
+
+      - name: Prepare SSH key
+        run: |
+          install -m 700 -d ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/masterops_oci
+          chmod 600 ~/.ssh/masterops_oci
+
+      - name: Render manifests
+        env:
+          MASTEROPS_HOST: ${{ secrets.MASTEROPS_HOST }}
+        run: |
+          rm -rf /tmp/masterops-rendered
+          mkdir -p /tmp/masterops-rendered/base /tmp/masterops-rendered/networking /tmp/masterops-rendered/cert-manager
+          cp k8s/base/*.yaml /tmp/masterops-rendered/base/
+          cp k8s/networking/gateway.yaml /tmp/masterops-rendered/networking/
+          cp k8s/networking/masterops-route.yaml /tmp/masterops-rendered/networking/
+          cp k8s/cert-manager/clusterissuer-prod.yaml /tmp/masterops-rendered/cert-manager/
+          cp k8s/cert-manager/certificate-prod.yaml /tmp/masterops-rendered/cert-manager/
+          find /tmp/masterops-rendered -type f -name "*.yaml" -exec sh -c '
+            for f do
+              envsubst < "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+            done
+          ' sh {} +
+
+      - name: Copy manifests to server
+        run: |
+          scp -i ~/.ssh/masterops_oci -o StrictHostKeyChecking=no -r \
+            /tmp/masterops-rendered \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/tmp/masterops-k8s
+
+      - name: Apply manifests
+        run: |
+          ssh -i ~/.ssh/masterops_oci -o StrictHostKeyChecking=no \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "\
+              sudo k3s kubectl apply -f /tmp/masterops-k8s/cert-manager/clusterissuer-prod.yaml && \
+              sudo k3s kubectl apply -f /tmp/masterops-k8s/cert-manager/certificate-prod.yaml && \
+              sudo k3s kubectl apply -f /tmp/masterops-k8s/networking/gateway.yaml && \
+              sudo k3s kubectl apply -f /tmp/masterops-k8s/base && \
+              sudo k3s kubectl apply -f /tmp/masterops-k8s/networking/masterops-route.yaml && \
+              sudo k3s kubectl -n masterops rollout status deploy/masterops-api --timeout=180s \
+            "
