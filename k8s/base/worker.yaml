@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: masterops-worker
+  namespace: masterops
+  labels:
+    app: masterops-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: masterops-worker
+  template:
+    metadata:
+      labels:
+        app: masterops-worker
+    spec:
+      containers:
+        - name: worker
+          image: ghcr.io/shvwn9/masterops-worker:latest
+          imagePullPolicy: Always
+          env:
+            - name: WORKER_INTERVAL_SECONDS
+              value: "30"
+            - name: WORKER_ASSET_NAME
+              value: "worker-simulator-001"
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
