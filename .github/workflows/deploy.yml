@@ -48,9 +48,13 @@ jobs:
 
       - name: Copy manifests to server
         run: |
+          ssh -i ~/.ssh/masterops_oci -o StrictHostKeyChecking=no \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} \
+            "rm -rf /tmp/masterops-k8s && mkdir -p /tmp/masterops-k8s"
+
           scp -i ~/.ssh/masterops_oci -o StrictHostKeyChecking=no -r \
-            /tmp/masterops-rendered \
-            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/tmp/masterops-k8s
+            /tmp/masterops-rendered/* \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/tmp/masterops-k8s/
 
       - name: Apply manifests
         run: |
