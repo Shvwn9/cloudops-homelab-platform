@@ -1,8 +1,12 @@
 name: release-images
 
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - ci
+    types:
+      - completed
 
 permissions:
   contents: read
@@ -10,9 +14,17 @@ permissions:
 
 jobs:
   build-push:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
+    env:
+      IMAGE_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.IMAGE_SHA }}
 
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
@@ -30,7 +42,7 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            ghcr.io/shvwn9/masterops-api:${{ github.sha }}
+            ghcr.io/shvwn9/masterops-api:${{ env.IMAGE_SHA }}
             ghcr.io/shvwn9/masterops-api:latest
 
       - uses: docker/build-push-action@v6
@@ -40,5 +52,5 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            ghcr.io/shvwn9/masterops-worker:${{ github.sha }}
+            ghcr.io/shvwn9/masterops-worker:${{ env.IMAGE_SHA }}
             ghcr.io/shvwn9/masterops-worker:latest
