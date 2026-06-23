@@ -2,7 +2,6 @@
 
 MasterOps Cloud Platform est un projet DevOps / Cloud / Infra qui montre une chaine complete, de l'infrastructure jusqu'a l'observabilite.
 
-L'idee n'est pas juste de deployer une application "hello world" dans Kubernetes. Le but est de construire une petite plateforme credible autour d'un sujet que je connais: le suivi de parc, les heartbeats, la conformite et les incidents.
 
 Le projet tourne sur une VM Oracle Cloud Free Tier avec K3s, Traefik Gateway API, cert-manager, GitHub Actions, GHCR, Prometheus, Grafana, OpenTelemetry, Jaeger et OpenCost.
 
@@ -12,12 +11,7 @@ URL publique:
 https://masterops-88-96-38-121.sslip.io
 ```
 
-> Screenshot a ajouter:
->
-> ```text
-> docs/screenshots/masterops-ui.png
-> ```
->
+
 > Capture : page `https://masterops-88-96-38-121.sslip.io/ui`.
 
 ![MasterOps UI](docs/screenshots/masterops-ui.png)
@@ -25,7 +19,7 @@ https://masterops-88-96-38-121.sslip.io
 ## Pourquoi le projet existe
 
 
-Le but de MasterOps est de montrer que je sais assembler plusieurs briques DevOps dans une vraie logique de plateforme:
+Le but de MasterOps est :
 
 - provisionner une infrastructure cloud avec Terraform;
 - configurer une VM Linux avec Ansible;
@@ -44,7 +38,6 @@ Cote fonctionnel, l'application simule une plateforme de gestion de parc:
 - des metriques applicatives;
 - une interface web tres simple pour visualiser les points d'entree.
 
-Ce n'est pas une application metier complete, volontairement. Le vrai sujet du projet est l'industrialisation autour de l'application.
 
 ## Architecture
 
@@ -287,24 +280,20 @@ Les ports publics sont volontairement limites a:
 - `80` pour HTTP / challenge ACME;
 - `443` pour HTTPS.
 
-K3s est installe sans le Traefik embarque:
+K3s est installe sans le Traefik embarqué:
 
 ```bash
 INSTALL_K3S_EXEC="server --disable traefik --write-kubeconfig-mode=0644"
 ```
 
-Je desactive le Traefik par defaut de K3s pour installer ma propre version via Helm avec le provider Gateway API active.
+Le Traefik par defaut de K3s  est desactive pour installer ma propre version via Helm avec le provider Gateway API active.
 
-> Screenshot a ajouter:
->
-> ```text
-> docs/screenshots/oci-instance.png
-> docs/screenshots/terraform-output.png
-> ```
->
-> Captures conseillees: VM OCI running avec IP publique, et sortie `terraform output`.
+
+> Captures : VM OCI running avec IP publique, et sortie `terraform output`.
 
 ![OCI Instance](docs/screenshots/oci-instance.png)
+
+![terraform output](docs/screenshots/terraform-output.png)
 
 ## Comment la VM est configuree
 
@@ -356,7 +345,7 @@ Commande Traefik importante:
 --set ports.websecure.exposedPort=443
 ```
 
-Point important que j'ai appris pendant le projet: dans le `Gateway`, il faut utiliser les ports internes de Traefik, donc `8000` et `8443`, meme si le service expose publiquement `80` et `443`.
+Point important: dans le `Gateway`, il faut utiliser les ports internes de Traefik, donc `8000` et `8443`, meme si le service expose publiquement `80` et `443`.
 
 ```yaml
 listeners:
@@ -368,13 +357,7 @@ listeners:
     protocol: HTTPS
 ```
 
-> Screenshot a ajouter:
->
-> ```text
-> docs/screenshots/k3s-pods.png
-> ```
->
-> Capture conseillee: sortie de `sudo k3s kubectl get pods -A`.
+> Capture: sortie de `sudo k3s kubectl get pods -A`.
 
 ![K3s Pods](docs/screenshots/k3s-pods.png)
 
@@ -438,13 +421,8 @@ Verification TLS:
 curl -I https://masterops-88-96-38-121.sslip.io/health
 ```
 
-> Screenshot a ajouter:
->
-> ```text
-> docs/screenshots/tls-health.png
-> ```
->
-> Capture conseillee: `curl -I` ou navigateur montrant HTTPS valide.
+
+> Capture: sortie de `curl -I`.
 
 ![TLS Health](docs/screenshots/tls-health.png)
 
@@ -481,8 +459,7 @@ Les images sont construites en multi-architecture:
 ```yaml
 platforms: linux/amd64,linux/arm64
 ```
-
-J'ai garde cette logique car la cible cloud peut varier entre AMD64 et ARM selon les ressources disponibles dans OCI Free Tier.
+car la cible cloud peut varier entre AMD64 et ARM selon les ressources disponibles dans OCI Free Tier.
 
 ### Image API
 
@@ -612,13 +589,8 @@ hostname: ${MASTEROPS_HOST}
 
 Kubernetes ne remplace pas cette variable tout seul. Le workflow genere donc des fichiers temporaires avec la vraie valeur avant de les appliquer.
 
-> Screenshot a ajouter:
->
-> ```text
-> docs/screenshots/github-actions-chain.png
-> ```
->
-> Capture conseillee: GitHub Actions montrant `ci -> release-images -> deploy-prod`.
+
+> Capture: GitHub Actions montrant `ci -> release-images -> deploy-prod`.
 
 ![GitHub Actions](docs/screenshots/github-actions-chain.png)
 
@@ -642,7 +614,7 @@ Prometheus scrape l'API via:
 http://masterops-api.masterops.svc.cluster.local:8000/metrics
 ```
 
-Comme j'ai choisi le chart leger `prometheus-community/prometheus`, je n'utilise pas de `ServiceMonitor`. Le scrape applicatif est ajoute via `extraScrapeConfigs`.
+Comme le chart leger `prometheus-community/prometheus` a été choisi,`ServiceMonitor` n'est pas utilisé. Le scrape applicatif est ajouté via `extraScrapeConfigs`.
 
 Configuration importante appliquee avec Helm:
 
@@ -665,13 +637,7 @@ sum(rate(masterops_http_requests_total[5m])) by (path, status)
 histogram_quantile(0.95, sum(rate(masterops_http_request_duration_seconds_bucket[5m])) by (le, path))
 ```
 
-> Screenshot a ajouter:
->
-> ```text
-> docs/screenshots/prometheus-masterops-target.png
-> ```
->
-> Capture conseillee: Prometheus target `masterops-api` en `UP`, ou requete `up{job="masterops-api"}`.
+> Capture: Prometheus target `masterops-api` en `UP`, ou requete `up{job="masterops-api"}`.
 
 ![Prometheus Target](docs/screenshots/prometheus-masterops-target.png)
 
@@ -683,7 +649,7 @@ Grafana utilise Prometheus comme datasource:
 http://prometheus-server.observability.svc.cluster.local
 ```
 
-Dashboard conseille:
+Dashboard:
 
 ```text
 MasterOps API Overview
@@ -708,13 +674,7 @@ sum(rate(masterops_http_requests_total[5m])) by (path, status)
 node_memory_MemAvailable_bytes
 ```
 
-> Screenshot a ajouter:
->
-> ```text
-> docs/screenshots/grafana-masterops-api.png
-> ```
->
-> Capture conseillee: dashboard complet `MasterOps API Overview`.
+> Capture: Partie du dashboard `MasterOps API Overview`.
 
 ![Grafana MasterOps](docs/screenshots/grafana-masterops-api.png)
 
@@ -753,20 +713,15 @@ OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector.observability.svc.cluster.loca
 OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
 ```
 
-Ce que je verifie dans Jaeger:
+Ce qui est verifié dans Jaeger:
 
 - service `masterops-api`;
 - traces sur `/health`;
 - traces sur `/api/assets`;
 - traces sur `/api/incidents`.
 
-> Screenshot a ajouter:
->
-> ```text
-> docs/screenshots/jaeger-masterops-api.png
-> ```
->
-> Capture conseillee: Jaeger avec traces `masterops-api`.
+
+> Capture: Jaeger avec traces `masterops-api`.
 
 ![Jaeger MasterOps](docs/screenshots/jaeger-masterops-api.png)
 
@@ -800,13 +755,8 @@ OpenCost remonte ensuite une allocation de couts par namespace:
 
 Comme le cluster tourne sur OCI Free Tier, OpenCost utilise un pricing par defaut. Les valeurs sont donc indicatives. Ce qui compte ici, c'est la logique FinOps: montrer comment les couts Kubernetes peuvent etre relies aux namespaces et workloads.
 
-> Screenshot a ajouter:
->
-> ```text
-> docs/screenshots/opencost-masterops.png
-> ```
->
-> Capture conseillee: tableau OpenCost avec les namespaces, dont `masterops`.
+
+> Capture: tableau OpenCost avec les namespaces, dont `masterops`.
 
 ![OpenCost MasterOps](docs/screenshots/opencost-masterops.png)
 
@@ -860,35 +810,8 @@ Verifier OpenCost:
 sudo k3s kubectl -n observability get pods,svc | grep -i opencost
 ```
 
-## Screenshots a fournir
-
-Les captures sont importantes parce que le README doit prouver visuellement que la plateforme tourne.
-
-A ajouter dans:
-
-```text
-docs/screenshots/
-```
-
-Liste conseillee:
-
-```text
-docs/screenshots/masterops-ui.png
-docs/screenshots/architecture.png
-docs/screenshots/oci-instance.png
-docs/screenshots/terraform-output.png
-docs/screenshots/k3s-pods.png
-docs/screenshots/tls-health.png
-docs/screenshots/github-actions-chain.png
-docs/screenshots/prometheus-masterops-target.png
-docs/screenshots/grafana-masterops-api.png
-docs/screenshots/jaeger-masterops-api.png
-docs/screenshots/opencost-masterops.png
-```
-
 ## Problemes rencontres et corrections
 
-Cette partie est importante parce qu'elle montre le raisonnement de debug, pas juste le resultat final.
 
 ### Gateway API et Traefik
 
@@ -979,8 +902,6 @@ Correction:
 
 ## Limites connues
 
-Le projet est volontairement un lab portfolio, pas une plateforme de production HA.
-
 Limites:
 
 - K3s est en single-node;
@@ -1001,29 +922,15 @@ Ameliorations possibles:
 - ajouter une strategie de backup;
 - ajouter une couche GitOps plus propre avec ArgoCD ou Flux.
 
-## Resume recruteur
 
-Ce projet montre une chaine DevOps complete:
+## Conclusion
 
-```text
-Terraform -> Ansible -> K3s -> Traefik Gateway API -> cert-manager -> GitHub Actions -> GHCR -> Kubernetes -> Prometheus/Grafana -> OpenTelemetry/Jaeger -> OpenCost
-```
+Ce projet valide une chaine DevOps complete, depuis la creation de l'infrastructure cloud jusqu'a l'observabilite applicative.
 
-Il montre que je sais:
+MasterOps Cloud Platform tourne sur une VM OCI Free Tier avec K3s. L'infrastructure est provisionnee avec Terraform, la configuration systeme est automatisee avec Ansible, l'application est conteneurisee avec Docker, publiee dans GHCR, puis deployee automatiquement via GitHub Actions.
 
-- provisionner une infra cloud;
-- configurer une VM Linux;
-- deployer une application dans Kubernetes;
-- exposer une application en HTTPS;
-- construire et publier des images Docker;
-- automatiser un deploiement;
-- instrumenter une application;
-- lire les metriques, traces et couts;
-- documenter les limites de la solution.
+L'application est exposee publiquement en HTTPS avec Traefik Gateway API, cert-manager et Let's Encrypt. Elle expose des endpoints applicatifs, des metriques Prometheus, et envoie des traces vers OpenTelemetry Collector puis Jaeger.
 
-Phrase CV possible:
+La partie observabilite permet de prouver que la plateforme fonctionne : Prometheus scrape l'API, Grafana visualise les metriques, Jaeger affiche les traces, et OpenCost donne une vue FinOps par namespace.
 
-```text
-MasterOps Cloud Platform - plateforme IaC hebergee sur OCI Free Tier avec Terraform, Ansible et K3s; CI/CD GitHub Actions avec build Docker multi-architecture, publication GHCR et deploiement SSH automatise; exposition HTTPS via Traefik Gateway API et cert-manager; observabilite Prometheus/Grafana/OpenTelemetry/Jaeger; suivi FinOps Kubernetes avec OpenCost.
-```
-
+Le projet n'est pas une architecture de production haute disponibilite, mais il montre une vraie chaine cloud / infra / DevOps coherente, reproductible et documentee.
