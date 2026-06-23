@@ -18,13 +18,12 @@ https://masterops-88-96-38-121.sslip.io
 > docs/screenshots/masterops-ui.png
 > ```
 >
-> Capture conseillee: page `https://masterops-88-96-38-121.sslip.io/ui`.
+> Capture : page `https://masterops-88-96-38-121.sslip.io/ui`.
 
 ![MasterOps UI](docs/screenshots/masterops-ui.png)
 
 ## Pourquoi le projet existe
 
-Je voulais un projet qui montre plus qu'un simple Dockerfile ou un deploiement Kubernetes isole.
 
 Le but de MasterOps est de montrer que je sais assembler plusieurs briques DevOps dans une vraie logique de plateforme:
 
@@ -115,15 +114,6 @@ masterops-api traces -> OpenTelemetry Collector -> Jaeger
 Kubernetes metrics -> Prometheus -> OpenCost
 ```
 
-> Screenshot a ajouter:
->
-> ```text
-> docs/screenshots/architecture.png
-> ```
->
-> Capture conseillee: schema architecture ou capture du diagramme Mermaid rendu dans GitHub.
-
-![Architecture](docs/screenshots/architecture.png)
 
 ## Stack technique
 
@@ -243,7 +233,7 @@ LATENCY = Histogram(
 )
 ```
 
-Ce choix est volontaire: ca permet de voir dans Prometheus et Grafana le nombre de requetes, les statuts HTTP et la latence par route.
+ça permet de voir dans Prometheus et Grafana le nombre de requetes, les statuts HTTP et la latence par route.
 
 Exemples de requetes PromQL:
 
