@@ -40,6 +40,7 @@ jobs:
       - name: Render manifests
         env:
           MASTEROPS_HOST: ${{ secrets.MASTEROPS_HOST }}
+          MASTEROPS_IMAGE_TAG: ${{ github.event.workflow_run.head_sha || github.sha }}
         run: |
           rm -rf /tmp/masterops-rendered
           mkdir -p /tmp/masterops-rendered/base /tmp/masterops-rendered/networking /tmp/masterops-rendered/cert-manager

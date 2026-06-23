@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: api
-          image: ghcr.io/shvwn9/masterops-api:latest
+          image: ghcr.io/shvwn9/masterops-api:${MASTEROPS_IMAGE_TAG}
           imagePullPolicy: Always
           env:
             - name: OTEL_SERVICE_NAME

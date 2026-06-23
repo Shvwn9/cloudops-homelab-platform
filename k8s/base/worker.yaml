@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: worker
-          image: ghcr.io/shvwn9/masterops-worker:latest
+          image: ghcr.io/shvwn9/masterops-worker:${MASTEROPS_IMAGE_TAG}
           imagePullPolicy: Always
           env:
             - name: WORKER_INTERVAL_SECONDS
