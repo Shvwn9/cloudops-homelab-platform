@@ -934,3 +934,74 @@ L'application est exposee publiquement en HTTPS avec Traefik Gateway API, cert-m
 La partie observabilite permet de prouver que la plateforme fonctionne : Prometheus scrape l'API, Grafana visualise les metriques, Jaeger affiche les traces, et OpenCost donne une vue FinOps par namespace.
 
 Le projet n'est pas une architecture de production haute disponibilite, mais il montre une vraie chaine cloud / infra / DevOps coherente, reproductible et documentee.
+
+
+
+## Annexes - preuves API
+
+### Healthcheck public
+
+![Healthcheck public](docs/screenshots/api-health.png)
+
+Ce screen montre que l’API MasterOps répond bien en HTTPS sur `/health`.
+C’est l’endpoint utilisé par Kubernetes pour les probes de readiness/liveness.
+
+### Endpoint Prometheus `/metrics`
+
+![Endpoint metrics](docs/screenshots/api-metrics.png)
+
+Ce screen montre que l’application expose ses métriques au format Prometheus.
+On retrouve notamment les métriques custom `masterops_http_requests_total`, utilisées ensuite dans Prometheus et Grafana.
+
+### Endpoint métier `/api/incidents`
+
+![Endpoint incidents](docs/screenshots/api-incidents.png)
+
+Ce screen montre que l’API expose aussi des données applicatives simulées, ici un incident de supervision.
+
+
+## Annexes - Commandes courrante
+
+```text
+Code Space Github : 
+
+
+cd /workspaces/cloudops-homelab-platform
+
+git add -A
+git commit -m "feat: update:"
+git push origin main
+
+OCI Cloud Shell :
+
+cd ~/cloudops-homelab-platform
+
+git status
+git pull --ff-only origin main
+
+Variables : 
+
+export MASTEROPS_IP="$(cd infra/terraform/envs/prod && terraform output -raw public_ip)"
+
+echo "$MASTEROPS_IP"
+
+
+export MASTEROPS_HOST="masterops-${MASTEROPS_IP//./-}.sslip.io"
+
+echo "$MASTEROPS_HOST"
+
+
+export COMPARTMENT_OCID=$(oci iam tenancy get \
+  --tenancy-id "$OCI_TENANCY" \
+  --query 'data.id' \
+  --raw-output)
+
+SSH POWERSHELL:
+
+ssh -i "Path\to\Private_SSH_Key" -L 3000:127.0.0.1:3000 ubuntu@88.96.38.121     GRAFA
+ssh -i "Path\to\Private_SSH_Key" -L 9090:127.0.0.1:9090 ubuntu@88.96.38.121     PROME
+
+sudo k3s kubectl -n observability port-forward svc/grafana 3000:80 --address 127.0.0.1
+sudo k3s kubectl -n observability port-forward svc/prometheus-server 9090:80 --address 127.0.0.1
+
+```
