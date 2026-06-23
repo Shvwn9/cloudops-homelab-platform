@@ -960,7 +960,7 @@ On retrouve notamment les métriques custom `masterops_http_requests_total`, uti
 Ce screen montre que l’API expose aussi des données applicatives simulées, ici un incident de supervision.
 
 
-## Annexes - Commandes courrante
+## Annexes - Commandes courantes
 
 ```text
 Code Space Github : 
@@ -1005,3 +1005,8 @@ sudo k3s kubectl -n observability port-forward svc/grafana 3000:80 --address 127
 sudo k3s kubectl -n observability port-forward svc/prometheus-server 9090:80 --address 127.0.0.1
 
 ```
+
+
+
+Repository secrets configurés : 
+![Endpoint incidents](docs/screenshots/Repository_secrets.png)
