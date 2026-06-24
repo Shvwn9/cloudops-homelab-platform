@@ -42,7 +42,6 @@ variable "display_name" {
 variable "ssh_allowed_cidr" {
   description = "CIDR autorisé en SSH. Idéalement votre IP publique suivie de /32."
   type        = string
-  default     = "0.0.0.0/0"
 }
 
 variable "availability_domain_index" {
@@ -240,7 +239,7 @@ resource "oci_core_instance" "k3s" {
         - curl
 
       runcmd:
-        - [ bash, -lc, 'curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --disable traefik --write-kubeconfig-mode=0644" sh -' ]
+        - [ bash, -lc, 'curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --disable traefik --write-kubeconfig-mode=0600" sh -' ]
     CLOUD_INIT
     )
   }

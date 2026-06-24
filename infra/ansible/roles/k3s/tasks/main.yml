@@ -6,7 +6,7 @@
 
 - name: Install K3s without bundled Traefik
   ansible.builtin.shell: |
-    curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --disable traefik --write-kubeconfig-mode=0644' sh -
+    curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --disable traefik --write-kubeconfig-mode=0600' sh -
   args:
     creates: /usr/local/bin/k3s
   when: not k3s_binary.stat.exists

@@ -1,6 +1,6 @@
 # MasterOps Cloud Platform
 
-MasterOps Cloud Platform est un projet DevOps / Cloud / Infra qui montre une chaine complete, de l'infrastructure jusqu'a l'observabilite.
+MasterOps Cloud Platform est un projet DevOps / Cloud / Infra qui montre une chaîne complète, de l'infrastructure jusqu'a l'observabilité.
 
 
 Le projet tourne sur une VM Oracle Cloud Free Tier avec K3s, Traefik Gateway API, cert-manager, GitHub Actions, GHCR, Prometheus, Grafana, OpenTelemetry, Jaeger et OpenCost.
@@ -25,7 +25,7 @@ Le but de MasterOps est :
 - configurer une VM Linux avec Ansible;
 - installer un cluster Kubernetes leger avec K3s;
 - exposer proprement une application en HTTPS;
-- automatiser le build et le deploiement avec GitHub Actions;
+- automatiser le build et le déploiement avec GitHub Actions;
 - publier des images dans GHCR;
 - prouver que l'application tourne avec Prometheus, Grafana, Jaeger et OpenCost;
 - documenter les limites et les choix techniques.
@@ -35,13 +35,13 @@ Cote fonctionnel, l'application simule une plateforme de gestion de parc:
 - des assets;
 - des heartbeats;
 - des incidents;
-- des metriques applicatives;
+- des métriques applicatives;
 - une interface web tres simple pour visualiser les points d'entree.
 
 
 ## Architecture
 
-Vue simplifiee:
+Vue simplifiée:
 
 ```mermaid
 flowchart TB
@@ -147,7 +147,7 @@ CI/CD:
 - publication GHCR;
 - deploiement SSH vers la VM K3s.
 
-Observabilite:
+Observabilité:
 
 - Prometheus;
 - Grafana;
@@ -238,7 +238,7 @@ histogram_quantile(0.95, sum(rate(masterops_http_request_duration_seconds_bucket
 
 ## Comment l'infra est provisionnee
 
-L'infrastructure cloud est declaree dans:
+L'infrastructure cloud est declarée dans:
 
 ```text
 infra/terraform/envs/prod/main.tf
@@ -280,13 +280,13 @@ Les ports publics sont volontairement limites a:
 - `80` pour HTTP / challenge ACME;
 - `443` pour HTTPS.
 
-K3s est installe sans le Traefik embarqué:
+K3s est installé sans le Traefik embarqué:
 
 ```bash
-INSTALL_K3S_EXEC="server --disable traefik --write-kubeconfig-mode=0644"
+INSTALL_K3S_EXEC="server --disable traefik --write-kubeconfig-mode=0600"
 ```
 
-Le Traefik par defaut de K3s  est desactive pour installer ma propre version via Helm avec le provider Gateway API active.
+Le Traefik par defaut de K3s est desactive pour installer ma propre version via Helm avec le provider Gateway API active.
 
 
 > Captures : VM OCI running avec IP publique, et sortie `terraform output`.
@@ -297,7 +297,7 @@ Le Traefik par defaut de K3s  est desactive pour installer ma propre version via
 
 ## Comment la VM est configuree
 
-La configuration systeme est geree avec Ansible:
+La configuration systeme est gerée avec Ansible:
 
 ```text
 infra/ansible/playbooks/site.yml
@@ -390,7 +390,7 @@ Il contient deux listeners:
 - `web` en HTTP;
 - `websecure` en HTTPS avec terminaison TLS.
 
-Le certificat est gere par cert-manager avec:
+Le certificat est geré par cert-manager avec:
 
 ```text
 k8s/cert-manager/clusterissuer-prod.yaml
@@ -426,9 +426,9 @@ curl -I https://masterops-88-96-38-121.sslip.io/health
 
 ![TLS Health](docs/screenshots/tls-health.png)
 
-## Comment l'app est build et publiee
+## Comment l'app est build et publiée
 
-Les images sont construites avec Docker et publiees dans GHCR.
+Les images sont construites avec Docker et sont publiées en latest et en SHA, mais Kubernetes déploie le SHA exact via ${MASTEROPS_IMAGE_TAG}
 
 Images:
 
@@ -469,7 +469,7 @@ Le Dockerfile API lance Gunicorn avec OpenTelemetry:
 CMD ["opentelemetry-instrument", "gunicorn", "--bind", "0.0.0.0:8000", "--workers", "2", "--access-logfile", "-", "--error-logfile", "-", "main:app"]
 ```
 
-Ca permet d'avoir automatiquement des traces envoyees vers l'OpenTelemetry Collector.
+Ca permet d'avoir automatiquement des traces envoyées vers l'OpenTelemetry Collector.
 
 ### Image worker
 
@@ -485,7 +485,7 @@ RUN useradd \
 
 Il simule un heartbeat toutes les 30 secondes.
 
-## Comment l'app est deployee
+## Comment l'app est deployée
 
 Les manifests Kubernetes sont dans:
 
@@ -587,16 +587,16 @@ Certains manifests gardent volontairement:
 hostname: ${MASTEROPS_HOST}
 ```
 
-Kubernetes ne remplace pas cette variable tout seul. Le workflow genere donc des fichiers temporaires avec la vraie valeur avant de les appliquer.
+Kubernetes ne remplace pas cette variable tout seul. Le workflow genère donc des fichiers temporaires avec la vraie valeur avant de les appliquer.
 
 
 > Capture: GitHub Actions montrant `ci -> release-images -> deploy-prod`.
 
 ![GitHub Actions](docs/screenshots/github-actions-chain.png)
 
-## Comment l'observabilite prouve que ca tourne
+## Comment l'observabilité prouve que ca tourne
 
-L'observabilite est la partie qui transforme le projet en plateforme exploitable.
+L'observabilité est la partie qui transforme le projet en plateforme exploitable.
 
 Elle prouve:
 
@@ -614,7 +614,7 @@ Prometheus scrape l'API via:
 http://masterops-api.masterops.svc.cluster.local:8000/metrics
 ```
 
-Comme le chart leger `prometheus-community/prometheus` a été choisi,`ServiceMonitor` n'est pas utilisé. Le scrape applicatif est ajouté via `extraScrapeConfigs`.
+Comme le chart leger `prometheus-community/prometheus` a été choisi, `ServiceMonitor` n'est pas utilisé. Le scrape applicatif est ajouté via `extraScrapeConfigs`.
 
 Configuration importante appliquee avec Helm:
 
@@ -753,7 +753,7 @@ OpenCost remonte ensuite une allocation de couts par namespace:
 - `ingress-system`;
 - `cert-manager`.
 
-Comme le cluster tourne sur OCI Free Tier, OpenCost utilise un pricing par defaut. Les valeurs sont donc indicatives. Ce qui compte ici, c'est la logique FinOps: montrer comment les couts Kubernetes peuvent etre relies aux namespaces et workloads.
+Comme le cluster tourne sur OCI Free Tier, OpenCost utilise un pricing par defaut. Les valeurs sont donc indicatives. Ce qui compte ici, c'est la logique FinOps: montrer comment les couts Kubernetes peuvent etre reliés aux namespaces et workloads.
 
 
 > Capture: tableau OpenCost avec les namespaces, dont `masterops`.
@@ -911,6 +911,7 @@ Limites:
 - `sslip.io` evite l'achat d'un domaine, mais ce n'est pas le choix final pour une vraie production;
 - les dashboards Grafana ne sont pas encore provisionnes en code dans le repo;
 - Prometheus et Grafana sont installes via Helm mais les valeurs finales pourraient etre versionnees dans un fichier `k8s/observability/values/`.
+- L’endpoint /metrics est public pour faciliter la démonstration. En production, il serait limité au réseau interne ou protégé côté Gateway/Traefik.
 
 Ameliorations possibles:
 
@@ -998,12 +999,17 @@ export COMPARTMENT_OCID=$(oci iam tenancy get \
 
 SSH POWERSHELL:
 
-ssh -i "Path\to\Private_SSH_Key" -L 3000:127.0.0.1:3000 ubuntu@88.96.38.121     GRAFA
-ssh -i "Path\to\Private_SSH_Key" -L 9090:127.0.0.1:9090 ubuntu@88.96.38.121     PROME
+ssh -i "Path\to\Private_SSH_Key" -L 3000:127.0.0.1:3000 ubuntu@88.96.38.121     Grafana
+ssh -i "Path\to\Private_SSH_Key" -L 9090:127.0.0.1:9090 ubuntu@88.96.38.121     Prometheus
+ssh -i "Path\to\Private_SSH_Key" -L 16686:127.0.0.1:16686 ubuntu@88.96.38.121   Jaeger
+ssh -i "Path\to\Private_SSH_Key" -L 9091:127.0.0.1:9091 ubuntu@88.96.38.121     opencost
+
+Port-forwarding : 
 
 sudo k3s kubectl -n observability port-forward svc/grafana 3000:80 --address 127.0.0.1
 sudo k3s kubectl -n observability port-forward svc/prometheus-server 9090:80 --address 127.0.0.1
-
+sudo k3s kubectl -n observability port-forward svc/jaeger 16686:16686 --address 127.0.0.1
+sudo k3s kubectl -n observability port-forward svc/opencost 9091:9090 --address 127.0.0.1
 ```
 
 
