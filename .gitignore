@@ -28,3 +28,4 @@ __pycache__/
 .vscode/
 
 infra/ansible/inventory/inventory.ini
+infra/terraform/envs/prod/backend.tf

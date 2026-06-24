@@ -242,8 +242,10 @@ L'infrastructure cloud est declarée dans:
 
 ```text
 infra/terraform/envs/prod/main.tf
-infra/terraform/envs/prod/backend.tf
+infra/terraform/envs/prod/backend.example.tf
 ```
+
+backend.tf est volontairement local et non commité. Le repo garde seulement backend.example.tf pour montrer la structure sans exposer la vraie configuration du backend Terraform.
 
 Terraform cree:
 
@@ -428,13 +430,16 @@ curl -I https://masterops-88-96-38-121.sslip.io/health
 
 ## Comment l'app est build et publiée
 
-Les images sont construites avec Docker et sont publiées en latest et en SHA, mais Kubernetes déploie le SHA exact via ${MASTEROPS_IMAGE_TAG}
 
-Images:
+Les images sont construites avec Docker et publiées avec deux tags :
+- `latest`, pratique pour identifier la dernière image disponible dans GHCR ;
+- le SHA du commit, utilisé par Kubernetes pour déployer une version précise.
+
+Images déployées :
 
 ```text
-ghcr.io/shvwn9/masterops-api:latest
-ghcr.io/shvwn9/masterops-worker:latest
+ghcr.io/shvwn9/masterops-api:${MASTEROPS_IMAGE_TAG}
+ghcr.io/shvwn9/masterops-worker:${MASTEROPS_IMAGE_TAG}
 ```
 
 Le workflow est:
@@ -1015,4 +1020,4 @@ sudo k3s kubectl -n observability port-forward svc/opencost 9091:9090 --address 
 
 
 Repository secrets configurés : 
-![Endpoint incidents](docs/screenshots/Repository_secrets.png)
+![Repository secrets configurés](docs/screenshots/Repository_secrets.png)
